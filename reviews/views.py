@@ -4,7 +4,8 @@
     QueryDict: Objects that mostly behave like dictionaries, except with multiple values for a key.
     Render: A shortcut function that returns an HttpResponse. It takes two args (request, template)
 """
-# from django.http import HttpResponse ---- Not longer needed
+from django.http import HttpResponse
+from .models import Book
 from django.shortcuts import render
 
 
@@ -25,3 +26,6 @@ def search(request, query):
         'query': query,
     })
 
+def welcome_view(request):
+    message = f'<html><h1>Welcome to Bookr!</h1><p>{Book.objects.count()} books and counting!</p></html>'
+    return HttpResponse(message)

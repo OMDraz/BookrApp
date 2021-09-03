@@ -1,6 +1,6 @@
 from django.contrib import admin
 
 class BookrAdminSite(admin.AdminSite):
-    title_header = "Omar's Website"
-    site_header = "Omars Admin Homepage"
-    index_title = "Bookr Site admin"
+    title_header = 'c8 site admin'
+    site_header = 'c8admin'
+    index_title = 'c8admin'

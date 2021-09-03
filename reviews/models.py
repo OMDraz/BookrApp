@@ -36,11 +36,19 @@ class Contributor(models.Model):
     last_names = models.CharField(max_length=50, help_text="The contributor's last name / names")
     email = models.EmailField(help_text="The Contributor's email address.")
 
+    def initialled_name(self):
+        """
+        self.first_names = 'Jerome David'
+        self.last_names = 'Salinger'
+        => 'Salinger, JD'
+        """
+        initials = ''.join([name[0] for name in self.first_names.split(' ')])
+        return "{}, {}".format(self.last_names, initials)
+
     def __str__(self):
-        return self.first_names
+        return self.initialled_name()
 
 class BookContributor(models.Model):
-
     class ContributionRole(models.TextChoices):
         AUTHOR = "AUTHOR", "Author"
         CO_AUTHOR = "CO_AUTHOR", "Co-Author"
@@ -56,4 +64,7 @@ class Review(models.Model):
     date_edited = models.DateTimeField(null=True, help_text="The date and time the review was last edited.")
     creator = models.ForeignKey(auth.get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, help_text="The Book that this review is for.")
+
+    def __str__(self):
+        return "{} ({} - rating {})".format(self.creator, self.book, self.rating)
 

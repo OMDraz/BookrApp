@@ -4,28 +4,44 @@
     QueryDict: Objects that mostly behave like dictionaries, except with multiple values for a key.
     Render: A shortcut function that returns an HttpResponse. It takes two args (request, template)
 """
-from django.http import HttpResponse
-from .models import Book
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from .models import Book, Review
+from .utils import average_rating
 
+def book_list(request):
+    books = Book.objects.all()
+    book_list = []
+    for book in books:
+        reviews = book.review_set.all()
+        if reviews:
+            book_rating = average_rating([review.rating for review in reviews])
+            number_of_reviews = len(reviews)
+        else:
+            book_rating = None
+            number_of_reviews = 0
+        book_list.append({'book': book,
+                          'book_rating': book_rating,
+                          'number_of_reviews': number_of_reviews})
 
-"""
-This is a function that returns a response to the client saying Hello World.
-1. We get the name attribute from the url - and we parse it into the HttpResponse using the format function
-2. To pass variables from views to templates, we need to pass it explicitly in the context  
-"""
+    context = {
+        'book_list': book_list
+    }
+    return render(request, 'reviews/book_list.html', context)
 
-def index(request):
-    name = request.GET.get('name') or "World!"
-    return render(request, 'base.html', context={
-        'name': name,
-    })
-
-def search(request, query):
-    return render(request, 'base.html', context={
-        'query': query,
-    })
-
-def welcome_view(request):
-    message = f'<html><h1>Welcome to Bookr!</h1><p>{Book.objects.count()} books and counting!</p></html>'
-    return HttpResponse(message)
+def book_detail_view(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    reviews = book.review_set.all()
+    if reviews:
+        book_rating = average_rating([review.rating for review in reviews])
+        context = {
+            'book': book,
+            'book_rating': book_rating,
+            'reviews': reviews
+        }
+    else:
+        context = {
+            'book': book,
+            'book_rating': None,
+            'reviews': None
+        }
+    return render(request, 'reviews/book_detail.html', context)
